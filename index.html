@@ -25,18 +25,17 @@
   <div id="files"></div>
 
   <script>
-    // ✨ عدّل هذه القيم فقط
-    const baseURL = "https://github.com/ONEXBET1/1exbet/tree/main/Files"; // ضع رابطك هنا
-    const totalFiles = 6; // عدد الملفات الكلي
-    const prefix = "IAM"; // بداية الاسم (IAM)
+    // 🔗 رابط RAW (المباشر)
+    const baseURL = "https://raw.githubusercontent.com/ONEXBET1/1exbet/main/Files/";
+    const totalFiles = 6;  // عدد الملفات
+    const prefix = "IAM";  // بداية الاسم (IAM1.hc, IAM2.hc...)
 
-    // إنشاء الأزرار تلقائيًا
     const container = document.getElementById("files");
     for (let i = 1; i <= totalFiles; i++) {
       const fileName = `${prefix}${i}.hc`;
       const link = document.createElement("a");
       link.href = baseURL + fileName;
-      link.download = fileName;
+      link.setAttribute("download", fileName); // 🔥 مهم: يجبر التحميل
       link.innerText = `تنزيل ${fileName}`;
       link.className = "file-btn";
       container.appendChild(link);
