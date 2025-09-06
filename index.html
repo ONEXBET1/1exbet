@@ -1,68 +1,46 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <title>رفع نصوص إلى Google Sheet</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
-        h2 { color: #333; }
-        input { width: 300px; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        #statusDiv { margin-top: 15px; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <title>تنزيل ملفات HC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background:#f4f4f4; }
+    h1 { margin: 20px; }
+    .file-btn {
+      display: block;
+      margin: 15px auto;
+      padding: 12px 20px;
+      background: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      width: 220px;
+    }
+    .file-btn:hover { background: #45a049; }
+  </style>
 </head>
 <body>
-    <h2>رفع نصوص إلى Google Sheet</h2>
+  <h1>ملفات HC للتحميل</h1>
+  <div id="files"></div>
 
-    <label>الاسم:</label><br>
-    <input type="text" id="name" placeholder="أدخل الاسم"><br>
-    <label>الرسالة:</label><br>
-    <input type="text" id="message" placeholder="أدخل الرسالة"><br><br>
-    <button id="sendBtn">رفع النصوص</button>
+  <script>
+    // ✨ عدّل هذه القيم فقط
+    const baseURL = "https://github.com/ONEXBET1/1exbet/files/"; // ضع رابطك هنا
+    const totalFiles = 6; // عدد الملفات الكلي
+    const prefix = "IAM"; // بداية الاسم (IAM)
 
-    <p id="statusDiv"></p>
-
-    <script>
-        const statusDiv = document.getElementById("statusDiv");
-
-        document.getElementById("sendBtn").addEventListener("click", function() {
-            const name = document.getElementById("name").value.trim();
-            const message = document.getElementById("message").value.trim();
-
-            if (!name || !message) {
-                statusDiv.style.color = 'red';
-                statusDiv.innerHTML = "❌ يرجى إدخال الاسم والرسالة";
-                return;
-            }
-
-            const webAppUrl = "https://script.google.com/macros/s/AKfycby0d06go_FNOaZ34b41ZxKNMxzjXfnJfBfSWz1foJ7rmJMKq9-CnVTpycyZ6_mWEjbsNg/exec"; // ضع رابط Web App النهائي هنا
-
-            try {
-                fetch(webAppUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name: name, message: message })
-                })
-                .then(res => res.text())
-                .then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        statusDiv.style.color = 'green';
-                        statusDiv.innerHTML = "✅ تم رفع النصوص بنجاح!<br>" + JSON.stringify(data);
-                    } catch (err) {
-                        throw new Error("رد غير صحيح من Web App: " + text);
-                    }
-                })
-                .catch(err => {
-                    statusDiv.style.color = 'red';
-                    statusDiv.innerHTML = "❌ خطأ في رفع النصوص:<br>" + err;
-                });
-            } catch (error) {
-                statusDiv.style.color = 'red';
-                statusDiv.innerHTML = "❌ خطأ داخلي:<br>" + error;
-            }
-        });
-    </script>
+    // إنشاء الأزرار تلقائيًا
+    const container = document.getElementById("files");
+    for (let i = 1; i <= totalFiles; i++) {
+      const fileName = `${prefix}${i}.hc`;
+      const link = document.createElement("a");
+      link.href = baseURL + fileName;
+      link.download = fileName;
+      link.innerText = `تنزيل ${fileName}`;
+      link.className = "file-btn";
+      container.appendChild(link);
+    }
+  </script>
 </body>
 </html>
