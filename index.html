@@ -1,40 +1,346 @@
-<!DOCTYPE html><html lang="ar">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1,user-scalable=no" />
 <title>لائحة المساهمين في حفر البئر</title>
+<!-- ======== ستايل الصفحة (يحافظ على شكلك الأصلي ويجعلها متجاوبة للهاتف) ======== -->
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    margin: 2px;
-    background: #f9f9f9;
-    direction: rtl;
+  :root{--accent:#2196F3;--green:#4CAF50;--danger:#e11d48}
+  html,body{height:100%;margin:0;padding:0;background:#f9f9f9;font-family:Arial, sans-serif;direction:rtl}
+  .container{max-width:980px;margin:8px auto;padding:6px}
+  h1{text-align:center;color:#333;margin:8px 0}
+  .top-buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-bottom:12px}
+  .top-buttons button, #pickImagesBtn, #clearImagesBtn {
+    background:var(--green); color:#fff; border:0; padding:8px 14px;border-radius:8px; font-size:15px; cursor:pointer;
   }
-  h1 { text-align: center; color: #333; }
-  .top-buttons {
-    display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
+  .top-buttons button:hover, #pickImagesBtn:hover, #clearImagesBtn:hover{filter:brightness(.95)}
+  #add-donor-toggle {display:block;margin:8px auto;background:var(--accent);color:#fff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer}
+  #add-donor-toggle:hover{filter:brightness(.95)}
+  form#addDonorForm{background:#fff;padding:12px;border:1px solid #ddd;margin-top:10px;display:none;gap:10px;flex-wrap:wrap;justify-content:center;border-radius:12px;box-shadow:0 3px 8px rgba(0,0,0,.08);max-width:420px;width:100%;margin-inline:auto}
+  input[type="text"], input[type="number"], select{padding:10px;width:100%;max-width:250px;border:1px solid #ccc;border-radius:8px;font-size:15px;transition:.2s}
+  input:focus, select:focus{border-color:#1976D2;outline:none;box-shadow:0 0 5px rgba(25,118,210,.35)}
+  button.formbtn{padding:10px 18px;background:var(--accent);border:0;color:#fff;border-radius:8px;font-size:15px;cursor:pointer}
+  button.formbtn:hover{filter:brightness(.95)}
+  @media (max-width:480px){
+    form#addDonorForm{flex-direction:column;align-items:stretch;padding:10px}
+    input, select, button{max-width:100%;font-size:14px}
+    .top-buttons{gap:8px}
   }
-  .top-buttons button, #pickFolder {
-    background-color: #4CAF50; color: white; border: none;
-    padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 15px;
-  }
-  .top-buttons button:hover, #pickFolder:hover { background-color: #45a049; }
-  #add-donor-toggle {
-    display: block; margin: 0 auto 10px auto; background-color: #2196F3;
-    color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;
-  }
-  #add-donor-toggle:hover { background-color: #1976D2; }form {
-background: #fff; padding: 12px; border: 1px solid #ddd; margin-top: 10px;
-display: none; gap: 10px; flex-wrap: wrap; justify-content: center;
-border-radius: 12px; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-max-width: 420px; width: 100%; margin-inline: auto;
-}
 
-input[type="text"], input[type="number"], select {
-padding: 10px; width: 100%; max-width: 250px; border: 1px solid #ccc;
-border-radius: 8px; font-size: 15px; transition: 0.2s ease;
-}
-input:focus, select:focus {
+  table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;table-layout:fixed}
+  th,td{border:1px solid #ccc;padding:6px;text-align:center;vertical-align:middle;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  th{background:#f0f0f0}
+  tr:nth-child(even){background:#f7f7f7}
+  .stat-paid{background:linear-gradient(90deg,#2ecc71,#27ae60);color:#fff;font-weight:700;font-size:1.1em}
+  .stat-unpaid{background:linear-gradient(90deg,#e74c3c,#c0392b);color:#fff;font-weight:700;font-size:1.1em}
+  .stat-total{background:linear-gradient(90deg,#3498db,#2c82c9);color:#fff;font-weight:700;font-size:1.1em}
+  .paid{color:green;font-weight:700}
+  .not-paid{color:red;font-weight:700}
+  td.paidStatus{cursor:pointer}
+
+  /* عمود الصورة مصغّر */
+  td img.thumbnail{display:block;width:45px;height:45px;object-fit:cover;border-radius:6px;cursor:pointer;transition:transform .18s}
+  td img.thumbnail:hover{transform:scale(1.2)}
+  td:last-child, th:last-child{width:1%;padding:0}
+
+  /* مودال تكبير الصورة */
+  #modal{display:none;position:fixed;z-index:9999;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.85);justify-content:center;align-items:center}
+  #modal img{max-width:92%;max-height:92%;border-radius:10px}
+
+  /* ازرار اختيار الصور ومسحها */
+  .images-actions{display:flex;gap:8px;justify-content:center;margin-top:8px;margin-bottom:8px}
+  .images-actions button{background:#0284c7;color:#fff;border:0;padding:10px 12px;border-radius:8px;cursor:pointer}
+  .images-actions button.secondary{background:#64748b}
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>💧 لائحة المساهمين في حفر البئر تسيناس</h1>
+
+    <div class="top-buttons">
+      <button id="share-whatsapp">📤 مشاركة الجدول على واتساب</button>
+      <button id="download-image">📸 تنزيل الجدول كصورة</button>
+    </div>
+
+    <!-- اختيار وادارة الصور (الجديد) -->
+    <div class="images-actions" style="text-align:center;">
+      <button id="pickImagesBtn">🖼️ اختر صور الوصل (متعدد)</button>
+      <button id="clearImagesBtn" class="secondary" title="مسح الصور المحفوظة">🗑️ حذف الصور المحفوظة</button>
+      <!-- زر لإظهار معلومات التخزين -->
+      <button id="storageInfoBtn" class="secondary" title="حالة التخزين">📦 حالة التخزين</button>
+    </div>
+    <!-- مخفي: input لاختيار الصور -->
+    <input type="file" id="imagesInput" accept="image/*" multiple style="display:none">
+
+    <button id="add-donor-toggle">➕ إضافة مساهم</button>
+
+    <form id="addDonorForm">
+      <input type="text" id="name" placeholder="اسم المساهم" required>
+      <input type="text" id="amount" placeholder="المبلغ (مثلاً 1000 درهم)" required>
+      <select id="paid">
+        <option value="true">مدفوع ✅</option>
+        <option value="false">غير مدفوع ❌</option>
+      </select>
+      <button class="formbtn" type="submit">إضافة</button>
+    </form>
+
+    <table id="donorsTable" aria-describedby="table-desc">
+      <thead>
+        <tr><td class="stat-total" colspan="5" style="font-size:1.35em">💦 لائحة المساهمين في حفر البئر تسيناس</td></tr>
+        <tr><td id="paid-total-cell" class="stat-paid" colspan="5">💰 مجموع المدفوع: 0 درهم</td></tr>
+        <tr><td id="unpaid-total-cell" class="stat-unpaid" colspan="5">💸 المبالغ المتبقية: 0 درهم</td></tr>
+        <tr><td id="overall-total-cell" class="stat-total" colspan="5">📊 المجموع الكلي: 0 درهم</td></tr>
+        <tr>
+          <th>#</th><th>الاسم</th><th>المبلغ</th><th>الدفع</th><th>الوصل</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- مودال تكبير الصورة -->
+    <div id="modal"><img id="modalImg" src="" alt="تكبير الصورة"></div>
+
+    <!-- سطر معلومات التخزين (سيملأ برمجيًا) -->
+    <div id="storageInfo" style="text-align:center;margin-top:10px;color:#555"></div>
+  </div>
+
+  <!-- مكتبة html2canvas لتحويل الجدول لصورة -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <script>
+  /************************************************************************
+   * ملف HTML كامل يجمع كل ميزاتك الأصلية + اختيار صور متعدد + حفظها
+   * الصور محفوظة في localStorage تحت المفتاح "imagesMap" كـ { "1": dataURL, ... }
+   * donors محفوظة في localStorage تحت المفتاح "donors"
+   * يعمل داخل GitHub Pages وعلى الهاتف (Chrome/Edge/Brave/Opera)
+   ************************************************************************/
+
+  // --------- عناصر رئيسية ----------
+  const tableBody = document.querySelector("#donorsTable tbody");
+  const imagesInput = document.getElementById("imagesInput");
+  const pickImagesBtn = document.getElementById("pickImagesBtn");
+  const clearImagesBtn = document.getElementById("clearImagesBtn");
+  const storageInfoBtn = document.getElementById("storageInfoBtn");
+
+  // --------- بيانات المساهمين (نفس البنية لديك) ----------
+  let donors = JSON.parse(localStorage.getItem('donors')) || [
+    {"الاسم": "سيدي جمال زادود", "المبلغ": "3500 درهم", "مدفوع": true},
+    {"الاسم": "محسن سيدي جمال زادود", "المبلغ": "10000 درهم", "مدفوع": true},
+    {"الاسم": "حسن الورزاوي", "المبلغ": "5000 درهم", "مدفوع": true},
+    {"الاسم": "عبد الفتاح بليش", "المبلغ": "1000 درهم", "مدفوع": true},
+    {"الاسم": "دريس تمغريت", "المبلغ": "1050 درهم", "مدفوع": true},
+    {"الاسم": "عبد الله صفوان", "المبلغ": "500 درهم", "مدفوع": true}
+  ];
+
+  // --------- imagesMap: يخزن بيانات الصور (DataURLs) مرتبطة برقم الصف ----------
+  // مثال: { "1": "data:image/jpeg;base64,...", "2": "data:..." }
+  let imagesMap = JSON.parse(localStorage.getItem("imagesMap") || "{}");
+
+  // ---------- وظائف الواجهة الرئيسية ----------
+  function renderTable(){
+    tableBody.innerHTML = "";
+    donors.forEach((donor, index) => {
+      const paidText = donor.مدفوع ? "✅" : "❌";
+      const paidClass = donor.مدفوع ? "paid" : "not-paid";
+      const imgUrl = imagesMap[index + 1] || `${index + 1}.jpg`; // إذا لم توجد صورة محفوظة يستعمل الاسم الافتراضي
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td style="width:6%">${index + 1}</td>
+        <td onclick="editDonor(${index}, 'الاسم')">${escapeHtml(donor.الاسم)}</td>
+        <td onclick="editDonor(${index}, 'المبلغ')">${escapeHtml(donor.المبلغ)}</td>
+        <td class="paidStatus ${paidClass}" onclick="togglePaid(${index})">${paidText}</td>
+        <td><img src="${imgUrl}" class="thumbnail" alt="وصل ${escapeHtml(donor.الاسم)}" onerror="this.style.opacity=0.35"></td>
+      `;
+      tableBody.appendChild(row);
+    });
+    updateTotals();
+    try { localStorage.setItem('donors', JSON.stringify(donors)); } catch(e){ console.warn("failed save donors",e) }
+  }
+
+  // حماية أساسية ضد إدخال HTML في الخلايا
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) }
+
+  // --------- حساب المجاميع ----------
+  function parseAmount(str){ return parseInt(String(str).replace(/[^\d]/g,"")) || 0; }
+  function updateTotals(){
+    let paid=0, unpaid=0;
+    donors.forEach(d => { const v = parseAmount(d.المبلغ); if(d.مدفوع) paid += v; else unpaid += v; });
+    document.getElementById("paid-total-cell").textContent = `💰 مجموع المدفوع: ${paid} درهم`;
+    document.getElementById("unpaid-total-cell").textContent = `💸 المبالغ المتبقية: ${unpaid} درهم`;
+    document.getElementById("overall-total-cell").textContent = `📊 المجموع الكلي: ${paid + unpaid} درهم`;
+  }
+
+  // --------- تعديل وتغيير حالة الدفع ----------
+  function togglePaid(i){
+    donors[i].مدفوع = !donors[i].مدفوع;
+    donors.sort((a,b) => b.مدفوع - a.مدفوع);
+    renderTable();
+  }
+  window.togglePaid = togglePaid;
+
+  function editDonor(i, field){
+    const v = prompt(`تعديل ${field}:`, donors[i][field]);
+    if(v !== null){ donors[i][field] = v.trim(); renderTable(); }
+  }
+  window.editDonor = editDonor;
+
+  // --------- اضافة مساهم ----------
+  document.getElementById("add-donor-toggle").onclick = () => {
+    const f = document.getElementById("addDonorForm");
+    f.style.display = f.style.display === "flex" ? "none" : "flex";
+  };
+  document.getElementById("addDonorForm").onsubmit = e => {
+    e.preventDefault();
+    const name = document.getElementById("name").value.trim();
+    const amount = document.getElementById("amount").value.trim();
+    const paid = document.getElementById("paid").value === "true";
+    donors.push({"الاسم": name || "بدون اسم", "المبلغ": amount || "0", "مدفوع": paid});
+    renderTable();
+    e.target.reset();
+  };
+
+  // --------- تحميل الجدول كصورة (html2canvas) ----------
+  document.getElementById("download-image").onclick = () => {
+    const el = document.querySelector("table");
+    html2canvas(el, {scale: window.devicePixelRatio || 2}).then(canvas => {
+      const a = document.createElement("a");
+      a.download = "لائحة_المساهمين.png";
+      a.href = canvas.toDataURL("image/png");
+      a.click();
+    }).catch(err => { alert("حدث خطأ أثناء إنشاء الصورة"); console.error(err); });
+  };
+
+  // --------- مشاركة واتساب ----------
+  document.getElementById("share-whatsapp").onclick = () => {
+    const rows = Array.from(document.querySelectorAll("#donorsTable tbody tr"));
+    let text = "لائحة المساهمين:\n";
+    rows.forEach(r => {
+      const cols = r.querySelectorAll("td");
+      text += `${cols[0].textContent}. ${cols[1].textContent} - ${cols[2].textContent} - ${cols[3].textContent}\n`;
+    });
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  // --------- مودال تكبير الصورة ----------
+  const modal = document.getElementById("modal");
+  const modalImg = document.getElementById("modalImg");
+  tableBody.addEventListener("click", e => {
+    if(e.target && e.target.tagName === "IMG"){
+      modal.style.display = "flex";
+      modalImg.src = e.target.src;
+    }
+  });
+  modal.onclick = () => modal.style.display = "none";
+
+  // --------- اختيار الصور (ملفات متعددة) وحفظها في localStorage كـ dataURLs ----------
+  pickImagesBtn.onclick = () => imagesInput.click();
+
+  imagesInput.onchange = async (event) => {
+    const files = Array.from(event.target.files || []);
+    if(!files.length) return;
+
+    // ننظف الخريطة القديمة ثم نضع الصور بترتيب الاختيار كـ 1,2,3...
+    imagesMap = {};
+    let index = 1;
+    try {
+      for(const file of files){
+        // نقرأ الملف كـ dataURL
+        const dataURL = await fileToDataURL(file);
+        imagesMap[index] = dataURL;
+        index++;
+      }
+      // نحاول حفظها في localStorage
+      try {
+        localStorage.setItem("imagesMap", JSON.stringify(imagesMap));
+        alert("تم حفظ الصور محلياً. ستظهر تلقائياً في المرة القادمة.");
+      } catch(e) {
+        // خطأ في السعة
+        console.warn("LocalStorage quota error:", e);
+        alert("حجم الصور كبير — فشل الحفظ. حاول اختيار صور أصغر أو قلل العدد.");
+      }
+      renderTable();
+    } catch(err) {
+      console.error("error reading files", err);
+      alert("حدث خطأ أثناء قراءة الصور.");
+    } finally {
+      imagesInput.value = ""; // إعادة تهيئة الحقل
+    }
+  };
+
+  // تحويل ملف إلى dataURL بواسطة FileReader (غالباً سريع للصور الصغيرة)
+  function fileToDataURL(file){
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+      r.readAsDataURL(file);
+    });
+  }
+
+  // --------- زر مسح الصور المحفوظة ----------
+  clearImagesBtn.onclick = () => {
+    if(confirm("هل أنت متأكد أنك تريد حذف الصور المحفوظة محلياً؟ ستعود الصورة الافتراضية (1.jpg, 2.jpg...)")) {
+      imagesMap = {};
+      try { localStorage.removeItem("imagesMap"); } catch(e){ console.warn(e) }
+      renderTable();
+    }
+  };
+
+  // --------- زر عرض معلومات التخزين (حجم localStorage تقريبي) ----------
+  storageInfoBtn.onclick = () => {
+    try {
+      const used = JSON.stringify(localStorage).length;
+      const kb = Math.round(used / 1024);
+      alert(`الحجم المقدر للبيانات في localStorage: ~${kb} كيلوبايت\n(تذكير: السعة تعتمد على المتصفح، عادة 5-10 ميجابايت)`);
+    } catch(e){
+      alert("لا يمكن قياس حالة التخزين حالياً");
+    }
+  };
+
+  // ---------- عند التحميل: استرجاع الصور والبيانات ----------
+  (function init(){
+    try {
+      const savedImages = localStorage.getItem("imagesMap");
+      if(savedImages) imagesMap = JSON.parse(savedImages);
+    } catch(e){ imagesMap = {}; }
+    renderTable();
+    showStorageHint();
+  })();
+
+  // نعرض تلميح صغير بشأن الصور إذا لم توجد
+  function showStorageHint(){
+    const el = document.getElementById("storageInfo");
+    el.textContent = Object.keys(imagesMap || {}).length ? `🖼️ تم تحميل ${Object.keys(imagesMap).length} صورة وحفظها محلياً` : "ℹ️ اضغط على 'اختر صور الوصل' لتحميل صور الوصل وحفظها محلياً";
+  }
+
+  // الاستماع لتغيّر في localStorage من نفس المتصفح (مفيد عند التعديل في تبويب آخر)
+  window.addEventListener("storage", (e) => {
+    if(e.key === "imagesMap"){
+      try { imagesMap = JSON.parse(e.newValue || "{}"); } catch(_) { imagesMap = {}; }
+      renderTable(); showStorageHint();
+    }
+    if(e.key === "donors"){
+      try { donors = JSON.parse(e.newValue || "[]"); } catch(_) {}
+      renderTable();
+    }
+  });
+
+  // تحديث عرض التخزين كلما رسمنا الجدول
+  const originalRenderTable = renderTable;
+  renderTable = function(){
+    originalRenderTable();
+    showStorageHint();
+  };
+
+  // --------- إجراءات أمان بسيطة لمنع فحص سريع (اختياري) ----------
+  window.addEventListener("contextmenu", e => { /* لا نفرض منع لأن قد يزعج المستخدم */ }, {passive:true});
+  // ملاحظة: لا نحاول تعطيل أدوات المطور — ذلك غير مجدي وقد يزعج المستخدم.
+
+  </script>
+</body>
+  </html>input:focus, select:focus {
 border-color: #1976D2; outline: none; box-shadow: 0 0 5px rgba(25, 118, 210, 0.4);
 }
 
