@@ -267,8 +267,7 @@ let donors = JSON.parse(localStorage.getItem('donors')) || [
     {"الاسم": "المرحوم الحسين بليش", "المبلغ": "300 درهم", "مدفوع": false},
     {"الاسم": "حمد زعفار", "المبلغ": "300 درهم", "مدفوع": false}
 ];
-let imagesMap = JSON.parse(localStorage.getItem('imagesMap')) || {};
-
+let imagesMap = {}; // فقط في الذاكرة، لا تخزين دائم
 // 🔄 عرض الجدول
 function renderTable() {
   tableBody.innerHTML = "";
@@ -288,8 +287,7 @@ function renderTable() {
   });
   updateTotals();
   localStorage.setItem('donors', JSON.stringify(donors));
-  localStorage.setItem('imagesMap', JSON.stringify(imagesMap));
-}
+  }
 
 // 🧮 المجموعات
 function parseAmount(str){ return parseInt(String(str).replace(/[^\d]/g,"")) || 0; }
